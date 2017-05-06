@@ -102,6 +102,9 @@ plot_map_catches <- function(flatdata, col="blue", main=""){
   if (nrow(flatdata)==0){
     stop("No samples to plot")
   }
+  if (any(duplicated(flatdata[,c("serialno", "samplenumber")]))){
+    stop("duplicated catch registrations numbers.")
+  }
   if (any(is.na(flatdata$longitudestart)) | any(is.na(flatdata$latitudestart))){
     warning("Some catches does not have positions registered.")
   }
@@ -127,10 +130,13 @@ example_cod <- function(file, art="TORSK"){
   tab <- tab[tab$noname==art,]
   print(tab)
   fd <- extract_weight_samples(fd)
-  fd <- fd[fd$noname==art,]
-  fd <- extract_large_sample(fd, 20)
-  if (any(duplicated(fd[,c("serialno", "samplenumber")]))){
-    stop("duplicated catch registrations numbers.")
+  if (!is.null(art)){
+    fd <- fd[fd$noname==art,]
   }
+  else{
+    fd <- fd[!duplicated(fd[,c("serialno", "samplenumber")]),]
+  }
+
+  fd <- extract_large_sample(fd, 20)
   plot_map_catches(fd, col="red", main=paste(art, ":", nrow(fd), "cacthes with at least a, l, w, and >= 20 sp."))
 }
