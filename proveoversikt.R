@@ -10,7 +10,7 @@ require(Rstox)
 # Importantly for the functions below, number of individuals in sample, the sample type and the product type is registered almost at once, along with catch positions.
 #
 # Important issues: 
-# can not access platform: Needed to report no of vessels sampled.
+# can not access platform: Needed to report no of vessels sampled, particularly important if analysis is extended to reference fleet.
 #
 
 testfile <- "/Users/a5362/code/masters/proveoversikt/data/11-2017-3654-1.xml"
@@ -27,7 +27,7 @@ gearmap_hi <- list("31"="Trawl", # Bunntrål
                    "41"="Gillnet", # Bunngarn/Flytegarn
                    "43"="Trap", # Ruse
                    "51"="Longline", # Line
-                   "52"="Longline", # Snøre
+                   "52"="Tackle", # Snøre
                    "53"="Trap") # Teine
 
 #' loads biotic data and flattens it, and annotate gears
@@ -115,17 +115,17 @@ plot_map_catches <- function(flatdata, col="blue", main=""){
 }
 
 #
-# Example: plot species catches from snurrevad with at least age samples
+# Example: plot species catches from snurrevad with at least age, length and weight samples
 #
 example_cod <- function(file, art="TORSK"){
   fd <- load_catch_data(file)
   tab <- make_table_provebat(fd, grouping=c("area", "noname", "gearname"))
   tab <- tab[tab$noname==art,]
   print(tab)
-  fd <- extract_age_samples(fd)
+  fd <- extract_weight_samples(fd)
   fd <- fd[fd$noname==art,]
   if (any(duplicated(fd[,c("serialno", "samplenumber")]))){
     stop("duplicated catch registrations numbers.")
   }
-  plot_map_catches(fd, col="blue", main=paste(art, "cacthes with at least age"))
+  plot_map_catches(fd, col="red", main=paste(art, ":", nrow(fd), "cacthes with at least age, length and weight"))
 }
