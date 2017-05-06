@@ -13,7 +13,7 @@ require(Rstox)
 # can not access platform: Needed to report no of vessels sampled, particularly important if analysis is extended to reference fleet.
 #
 
-testfile <- "/Users/a5362/code/masters/proveoversikt/data/11-2017-3654-1.xml"
+testfile <- "/Users/a5362/code/github/proveoversikt/data/11-2017-3654-1.xml"
 
 keys_ca <- c("cruise", "serialno", "species", "samplenumber", "noname", "aphia")
 keys_fs <- c("cruise", "serialno")
@@ -53,6 +53,10 @@ extract_weight_samples <- function(flatdata){
 #' Extract samples with at least age
 extract_age_samples <- function(flatdata){
   return(flatdata[!is.na(flatdata$sampletype),])
+}
+#' Extract samples with minimal number of individuals
+extract_large_sample <- function(flatdata, min_number){
+  flatdata[!is.na(flatdata$lengthsamplecount) & flatdata$lengthsamplecount>=min_number,]
 }
 
 #' creates a table where samples are aggregated on some combination of variables.
@@ -124,8 +128,9 @@ example_cod <- function(file, art="TORSK"){
   print(tab)
   fd <- extract_weight_samples(fd)
   fd <- fd[fd$noname==art,]
+  fd <- extract_large_sample(fd, 20)
   if (any(duplicated(fd[,c("serialno", "samplenumber")]))){
     stop("duplicated catch registrations numbers.")
   }
-  plot_map_catches(fd, col="red", main=paste(art, ":", nrow(fd), "cacthes with at least age, length and weight"))
+  plot_map_catches(fd, col="red", main=paste(art, ":", nrow(fd), "cacthes with at least a, l, w, and >= 20 sp."))
 }
